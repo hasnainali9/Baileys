@@ -290,13 +290,7 @@ export const makeBusinessSocket = (config: SocketConfig) => {
 				tag: 'business_profile_edit',
 				attrs: { v: '244' },
 				content: [
-					{
-						tag: 'profile',
-						attrs: {},
-						content: [
-							content
-						]
-					}
+					content
 				]
 			}
 			]

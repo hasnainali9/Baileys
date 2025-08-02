@@ -258,7 +258,7 @@ export const toBusinessProfile = (profile: BusinessProfile): BinaryNode => {
 	// }
 
 	const node: BinaryNode = {
-		tag: 'product',
+		tag: 'profile',
 		attrs,
 		content
 	}
