@@ -60,7 +60,6 @@ export type WABusinessProfile = {
 	}
 	website: string[]
 	category?: string
-	categories?: string[]
 	wid?: string
 	address?: string
 }

@@ -312,7 +312,6 @@ export const parseBusinessProfile = (businessProfileNode: BinaryNode) => {
 		address: address?.content?.toString(),
 		description: description?.content?.toString() || '',
 		website: websiteStr ? [websiteStr] : [],
-		phone: phoneStr ? [phoneStr] : [],
 		email: email?.content?.toString(),
 		category: category?.content?.toString(),
 		business_hours: {
