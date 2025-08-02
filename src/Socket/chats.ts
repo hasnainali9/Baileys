@@ -407,7 +407,6 @@ export const makeChatsSocket = (config: SocketConfig) => {
 			const description = getBinaryNodeChild(profiles, 'description')
 			const website = getBinaryNodeChild(profiles, 'website')
 			const email = getBinaryNodeChild(profiles, 'email')
-			const phone = getBinaryNodeChild(profiles, 'phone')
 			const categories = getBinaryNodeChild(profiles, 'categories');
 			const category = getBinaryNodeChild(getBinaryNodeChild(profiles, 'categories'), 'category')
 			const businessHours = getBinaryNodeChild(profiles, 'business_hours')
@@ -415,16 +414,17 @@ export const makeChatsSocket = (config: SocketConfig) => {
 				? getBinaryNodeChildren(businessHours, 'business_hours_config')
 				: undefined
 			const websiteStr = website?.content?.toString()
-			const phoneStr = phone?.content?.toString()
+			const categoriesStr = categories?.content?.toString()
+
+			
 			return {
 				wid: profiles.attrs?.jid,
 				address: address?.content?.toString(),
 				description: description?.content?.toString() || '',
 				website: websiteStr ? [websiteStr] : [],
-				phone: phoneStr ? [phoneStr] : [],
+				categories: categoriesStr ? [categoriesStr] : [],
 				email: email?.content?.toString(),
 				category: category?.content?.toString(),
-				categories: categories?.content?.toString(),
 				business_hours: {
 					timezone: businessHours?.attrs?.timezone,
 					business_config: businessHoursConfig?.map(({ attrs }) => attrs as unknown as WABusinessHoursConfig)
