@@ -61,6 +61,7 @@ export type WABusinessProfile = {
 	website: string[]
 	phone: string[]
 	category?: string
+	categories?: string
 	wid?: string
 	address?: string
 }
