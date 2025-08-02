@@ -288,28 +288,36 @@ export const makeBusinessSocket = (config: SocketConfig) => {
 			}
 		}
 		): Promise<void> => {
-		const content = []
+		const content: BinaryNode[] = []
+
+		const textNode = (text: string): BinaryNode => ({
+			tag: '#text',
+			attrs: {},
+			content: text
+		});
+
 
 		if (profile.address)
-			content.push({ tag: 'address', attrs: {}, content: profile.address })
+			content.push({ tag: 'address', attrs: {}, content: [textNode(profile.address)] })
 
 		if (profile.description)
-			content.push({ tag: 'description', attrs: {}, content: profile.description })
+			content.push({ tag: 'description', attrs: {}, content: [textNode(profile.description)] })
 
 		if (profile.website) {
 			for (const url of profile.website) {
-			content.push({ tag: 'website', attrs: {}, content: url })
+				content.push({ tag: 'website', attrs: {}, content: [textNode(url)] })
 			}
 		}
 
 		if (profile.email)
-			content.push({ tag: 'email', attrs: {}, content: profile.email })
+			content.push({ tag: 'email', attrs: {}, content: [textNode(profile.email)] })
 
 		if (profile.category)
-			content.push({ tag: 'category', attrs: {}, content: profile.category })
+		content.push({ tag: 'category', attrs: {}, content: [textNode(profile.category)] })
+
 
 		if (profile.business_hours) {
-			const bhConfig = profile.business_hours.business_config.map(cfg => {
+			const bhConfig: BinaryNode[] = profile.business_hours.business_config.map(cfg => {
 			const attrs: Record<string, string> = {
 				day_of_week: cfg.day_of_week,
 				mode: cfg.mode
@@ -320,7 +328,7 @@ export const makeBusinessSocket = (config: SocketConfig) => {
 				if (cfg.close_time) attrs.close_time = cfg.close_time
 			}
 
-			return { tag: 'config', attrs }
+			return { tag: 'config', attrs, content: undefined }
 			})
 
 			content.push({
@@ -332,7 +340,7 @@ export const makeBusinessSocket = (config: SocketConfig) => {
 			})
 		}
 
-		const node = {
+		const node: BinaryNode = {
 			tag: 'iq',
 			attrs: {
 			to: 's.whatsapp.net',
@@ -344,11 +352,11 @@ export const makeBusinessSocket = (config: SocketConfig) => {
 				tag: 'business_profile',
 				attrs: { v: '244' },
 				content: [
-				{
-					tag: 'profile',
-					attrs: { jid },
-					content
-				}
+					{
+						tag: 'profile',
+						attrs: { jid },
+						content
+					}
 				]
 			}
 			]
