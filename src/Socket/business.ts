@@ -1,10 +1,11 @@
-import type { GetCatalogOptions, ProductCreate, ProductUpdate, SocketConfig } from '../Types'
+import type { BusinessProfile, GetCatalogOptions, ProductCreate, ProductUpdate, SocketConfig } from '../Types'
 import {
 	parseCatalogNode,
 	parseCollectionsNode,
 	parseOrderDetailsNode,
 	parseProductNode,
 	toProductNode,
+	toBusinessProfile,
 	uploadingNecessaryImagesOfProduct
 } from '../Utils/business'
 import { type BinaryNode, jidNormalizedUser, S_WHATSAPP_NET } from '../WABinary'
@@ -271,74 +272,10 @@ export const makeBusinessSocket = (config: SocketConfig) => {
 
 	const updateBusinessProfile = async (
 		jid: string,
-		profile: {
-			address?: string
-			description?: string
-			website?: string[]
-			email?: string
-			category?: string
-			business_hours?: {
-			timezone: string
-			business_config: {
-				day_of_week: string
-				mode: 'open_24h' | 'closed' | 'specific_hours' | 'appointment_only'
-				open_time?: string
-				close_time?: string
-			}[]
-			}
-		}
+		profile: BusinessProfile
 		): Promise<void> => {
-		const content: BinaryNode[] = []
 
-		const textNode = (text: string): BinaryNode => ({
-			tag: '#text',
-			attrs: {},
-			content: text
-		});
-
-
-		if (profile.address)
-			content.push({ tag: 'address', attrs: {}, content: [textNode(profile.address)] })
-
-		if (profile.description)
-			content.push({ tag: 'description', attrs: {}, content: [textNode(profile.description)] })
-
-		if (profile.website) {
-			for (const url of profile.website) {
-				content.push({ tag: 'website', attrs: {}, content: [textNode(url)] })
-			}
-		}
-
-		if (profile.email)
-			content.push({ tag: 'email', attrs: {}, content: [textNode(profile.email)] })
-
-		if (profile.category)
-		content.push({ tag: 'category', attrs: {}, content: [textNode(profile.category)] })
-
-
-		if (profile.business_hours) {
-			const bhConfig: BinaryNode[] = profile.business_hours.business_config.map(cfg => {
-			const attrs: Record<string, string> = {
-				day_of_week: cfg.day_of_week,
-				mode: cfg.mode
-			}
-
-			if (cfg.mode === 'specific_hours') {
-				if (cfg.open_time) attrs.open_time = cfg.open_time
-				if (cfg.close_time) attrs.close_time = cfg.close_time
-			}
-
-			return { tag: 'config', attrs, content: undefined }
-			})
-
-			content.push({
-			tag: 'business_hours',
-			attrs: {
-				timezone: profile.business_hours.timezone
-			},
-			content: bhConfig
-			})
-		}
+		const content = toBusinessProfile(profile)
 
 		const node: BinaryNode = {
 			tag: 'iq',

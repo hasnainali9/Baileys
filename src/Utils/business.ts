@@ -4,6 +4,7 @@ import { createWriteStream, promises as fs } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import type {
+	BusinessProfile,
 	CatalogCollection,
 	CatalogStatus,
 	OrderDetails,
@@ -180,6 +181,79 @@ export const toProductNode = (productId: string | undefined, product: ProductCre
 		content
 	}
 	return node
+}
+
+
+export const toBusinessProfile = (profile: BusinessProfile): BinaryNode[] => {
+	const content: BinaryNode[] = []
+
+	if (typeof profile.address !== 'undefined') {
+		content.push({ 
+			tag: 'address', 
+			attrs: {}, 
+			content: Buffer.from(profile.address)
+		})
+	}
+
+	if (typeof profile.description !== 'undefined') {
+		content.push({ 
+			tag: 'description', 
+			attrs: {}, 
+			content: Buffer.from(profile.description)
+		})
+	}
+
+	if (profile.website) {
+		for (const url of profile.website) {
+			content.push({ 
+				tag: 'website', 
+				attrs: {}, 
+				content: Buffer.from(url)
+			})
+		}
+	}
+
+	if (typeof profile.email !== 'undefined') {
+		content.push({ 
+			tag: 'email', 
+			attrs: {}, 
+			content: Buffer.from(profile.email)
+		})
+	}
+
+	if (typeof profile.category !== 'undefined') {
+		content.push({ 
+			tag: 'category', 
+			attrs: {}, 
+			content: Buffer.from(profile.category) 
+		})
+	}
+
+	if (profile.business_hours) {
+		const bhConfig: BinaryNode[] = profile.business_hours.business_config.map(cfg => {
+			const attrs: Record<string, string> = {
+				day_of_week: cfg.day_of_week,
+				mode: cfg.mode
+			}
+
+			if (cfg.mode === 'specific_hours') {
+				if (cfg.open_time) attrs.open_time = cfg.open_time
+				if (cfg.close_time) attrs.close_time = cfg.close_time
+			}
+
+			return { tag: 'config', attrs, content: undefined }
+		})
+
+		content.push({
+			tag: 'business_hours',
+			attrs: {
+				timezone: profile.business_hours.timezone
+			},
+			content: bhConfig
+		})
+	}
+
+	return content
 }
 
 export const parseProductNode = (productNode: BinaryNode) => {
