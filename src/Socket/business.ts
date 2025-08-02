@@ -6,7 +6,8 @@ import {
 	parseProductNode,
 	toProductNode,
 	toBusinessProfile,
-	uploadingNecessaryImagesOfProduct
+	uploadingNecessaryImagesOfProduct,
+	parseBusinessProfile
 } from '../Utils/business'
 import { type BinaryNode, jidNormalizedUser, S_WHATSAPP_NET } from '../WABinary'
 import { getBinaryNodeChild } from '../WABinary/generic-utils'
@@ -273,7 +274,7 @@ export const makeBusinessSocket = (config: SocketConfig) => {
 	const updateBusinessProfile = async (
 		jid: string,
 		profile: BusinessProfile
-		): Promise<void> => {
+		) => {
 
 		const content = toBusinessProfile(profile)
 
@@ -286,20 +287,19 @@ export const makeBusinessSocket = (config: SocketConfig) => {
 			},
 			content: [
 			{
-				tag: 'business_profile',
+				tag: 'business_profile_edit',
 				attrs: { v: '244' },
 				content: [
-					{
-						tag: 'profile',
-						attrs: { jid },
-						content
-					}
+					content,
 				]
 			}
 			]
 		}
 
-		await query(node);
+		const result=await query(node);
+		const productCatalogAddNode = getBinaryNodeChild(result, 'business_profile_edit')
+		const productNode = getBinaryNodeChild(productCatalogAddNode, 'business_profile')
+		return parseBusinessProfile(productNode!)
 	}
 
 

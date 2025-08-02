@@ -1,5 +1,4 @@
 export * from './Auth'
-export * from './Business'
 export * from './GroupMetadata'
 export * from './Chat'
 export * from './Contact'
@@ -60,9 +59,28 @@ export type WABusinessProfile = {
 		business_config?: WABusinessHoursConfig[]
 	}
 	website: string[]
+	phone: string[]
 	category?: string
 	wid?: string
 	address?: string
+}
+
+export type BusinessProfile = {
+    address?: string
+    description?: string
+    website?: string[]
+    phone?: string[]
+    email?: string
+    category?: string
+    business_hours?: {
+        timezone: string
+        business_config: {
+            day_of_week: string
+            mode: 'open_24h' | 'closed' | 'specific_hours' | 'appointment_only'
+            open_time?: string
+            close_time?: string
+        }[]
+    }
 }
 
 export type CurveKeyPair = { private: Uint8Array; public: Uint8Array }

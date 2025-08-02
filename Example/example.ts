@@ -23,9 +23,63 @@ const onDemandMap = new Map<string, string>()
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
 const question = (text: string) => new Promise<string>((resolve) => rl.question(text, resolve))
 
+// Function to load auth from sessions folder file
+const loadAuthFromFile = async(sessionFile: string) => {
+	try {
+		if (fs.existsSync(sessionFile)) {
+			const sessionData = JSON.parse(await fs.promises.readFile(sessionFile, 'utf-8'))
+			return sessionData
+		}
+	} catch (error) {
+		console.log('Error loading session file:', error)
+	}
+	return null
+}
+
+// Function to save auth to sessions folder file
+const saveAuthToFile = async(sessionFile: string, authState: any) => {
+	try {
+		// Create sessions folder if it doesn't exist
+		const sessionsDir = './sessions'
+		if (!fs.existsSync(sessionsDir)) {
+			fs.mkdirSync(sessionsDir, { recursive: true })
+		}
+		
+		await fs.promises.writeFile(sessionFile, JSON.stringify(authState, null, 2))
+		console.log('Session saved to file')
+	} catch (error) {
+		console.log('Error saving session file:', error)
+	}
+}
+
 // start a connection
 const startSock = async() => {
-	const { state, saveCreds } = await useMultiFileAuthState('baileys_auth_info')
+	const sessionFile = './sessions/auth_session.json'
+	
+	// Try to load existing session from file first
+	let authState = await loadAuthFromFile(sessionFile)
+	
+	let state, saveCreds
+	
+	if (authState) {
+		console.log('Loading auth from session file...')
+		// Use the loaded auth state
+		state = authState
+		saveCreds = async () => {
+			await saveAuthToFile(sessionFile, state)
+		}
+	} else {
+		console.log('No existing session found, creating new auth state...')
+		// Create new auth state using the default method
+		const authInfo = await useMultiFileAuthState('baileys_auth_info')
+		state = authInfo.state
+		saveCreds = async () => {
+			await authInfo.saveCreds()
+			// Also save to our session file
+			await saveAuthToFile(sessionFile, state)
+		}
+	}
+	
 	// fetch latest version of WA Web
 	const { version, isLatest } = await fetchLatestBaileysVersion()
 	console.log(`using WA v${version.join('.')}, isLatest: ${isLatest}`)

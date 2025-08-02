@@ -407,17 +407,20 @@ export const makeChatsSocket = (config: SocketConfig) => {
 			const description = getBinaryNodeChild(profiles, 'description')
 			const website = getBinaryNodeChild(profiles, 'website')
 			const email = getBinaryNodeChild(profiles, 'email')
+			const phone = getBinaryNodeChild(profiles, 'email')
 			const category = getBinaryNodeChild(getBinaryNodeChild(profiles, 'categories'), 'category')
 			const businessHours = getBinaryNodeChild(profiles, 'business_hours')
 			const businessHoursConfig = businessHours
 				? getBinaryNodeChildren(businessHours, 'business_hours_config')
 				: undefined
 			const websiteStr = website?.content?.toString()
+			const phoneStr = phone?.content?.toString()
 			return {
 				wid: profiles.attrs?.jid,
 				address: address?.content?.toString(),
 				description: description?.content?.toString() || '',
 				website: websiteStr ? [websiteStr] : [],
+				phone: phoneStr ? [phoneStr] : [],
 				email: email?.content?.toString(),
 				category: category?.content?.toString(),
 				business_hours: {

@@ -5,6 +5,7 @@ import { tmpdir } from 'os'
 import { join } from 'path'
 import type {
 	BusinessProfile,
+	WABusinessProfile,
 	CatalogCollection,
 	CatalogStatus,
 	OrderDetails,
@@ -13,7 +14,8 @@ import type {
 	ProductCreate,
 	ProductUpdate,
 	WAMediaUpload,
-	WAMediaUploadFunction
+	WAMediaUploadFunction,
+	WABusinessHoursConfig
 } from '../Types'
 import { type BinaryNode, getBinaryNodeChild, getBinaryNodeChildren, getBinaryNodeChildString } from '../WABinary'
 import { generateMessageIDV2 } from './generics'
@@ -184,48 +186,49 @@ export const toProductNode = (productId: string | undefined, product: ProductCre
 }
 
 
-export const toBusinessProfile = (profile: BusinessProfile): BinaryNode[] => {
+export const toBusinessProfile = (profile: BusinessProfile): BinaryNode => {
 	const content: BinaryNode[] = []
+	const attrs: BinaryNode['attrs'] = {}
 
 	if (typeof profile.address !== 'undefined') {
-		content.push({ 
-			tag: 'address', 
-			attrs: {}, 
+		content.push({
+			tag: 'address',
+			attrs: {},
 			content: Buffer.from(profile.address)
 		})
 	}
 
 	if (typeof profile.description !== 'undefined') {
-		content.push({ 
-			tag: 'description', 
-			attrs: {}, 
+		content.push({
+			tag: 'description',
+			attrs: {},
 			content: Buffer.from(profile.description)
 		})
 	}
 
 	if (profile.website) {
 		for (const url of profile.website) {
-			content.push({ 
-				tag: 'website', 
-				attrs: {}, 
+			content.push({
+				tag: 'website',
+				attrs: {},
 				content: Buffer.from(url)
 			})
 		}
 	}
 
 	if (typeof profile.email !== 'undefined') {
-		content.push({ 
-			tag: 'email', 
-			attrs: {}, 
+		content.push({
+			tag: 'email',
+			attrs: {},
 			content: Buffer.from(profile.email)
 		})
 	}
 
 	if (typeof profile.category !== 'undefined') {
-		content.push({ 
-			tag: 'category', 
-			attrs: {}, 
-			content: Buffer.from(profile.category) 
+		content.push({
+			tag: 'category',
+			attrs: {},
+			content: Buffer.from(profile.category)
 		})
 	}
 
@@ -253,7 +256,12 @@ export const toBusinessProfile = (profile: BusinessProfile): BinaryNode[] => {
 		})
 	}
 
-	return content
+	const node: BinaryNode = {
+		tag: 'product',
+		attrs,
+		content
+	}
+	return node
 }
 
 export const parseProductNode = (productNode: BinaryNode) => {
@@ -281,6 +289,41 @@ export const parseProductNode = (productNode: BinaryNode) => {
 
 	return product
 }
+
+
+
+
+export const parseBusinessProfile = (businessProfileNode: BinaryNode) => {
+	const profiles = businessProfileNode
+	const address = getBinaryNodeChild(profiles, 'address')
+	const description = getBinaryNodeChild(profiles, 'description')
+	const website = getBinaryNodeChild(profiles, 'website')
+	const email = getBinaryNodeChild(profiles, 'email')
+	const phone = getBinaryNodeChild(profiles, 'email')
+	const category = getBinaryNodeChild(getBinaryNodeChild(profiles, 'categories'), 'category')
+	const businessHours = getBinaryNodeChild(profiles, 'business_hours')
+	const businessHoursConfig = businessHours
+		? getBinaryNodeChildren(businessHours, 'business_hours_config')
+		: undefined
+	const websiteStr = website?.content?.toString()
+	const phoneStr = phone?.content?.toString()
+	return {
+		wid: profiles.attrs?.jid,
+		address: address?.content?.toString(),
+		description: description?.content?.toString() || '',
+		website: websiteStr ? [websiteStr] : [],
+		phone: phoneStr ? [phoneStr] : [],
+		email: email?.content?.toString(),
+		category: category?.content?.toString(),
+		business_hours: {
+			timezone: businessHours?.attrs?.timezone,
+			business_config: businessHoursConfig?.map(({ attrs }) => attrs as unknown as WABusinessHoursConfig)
+		}
+	}
+}
+
+
+
 
 /**
  * Uploads images not already uploaded to WA's servers
