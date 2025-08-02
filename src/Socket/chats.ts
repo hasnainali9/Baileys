@@ -415,7 +415,7 @@ export const makeChatsSocket = (config: SocketConfig) => {
 				: undefined
 			const websiteStr = website?.content?.toString()
 			const categoriesStr = categories?.content?.toString()
-
+			console.log(categories);
 			
 			return {
 				wid: profiles.attrs?.jid,
