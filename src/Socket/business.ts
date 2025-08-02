@@ -303,6 +303,7 @@ export const makeBusinessSocket = (config: SocketConfig) => {
 		}
 
 		const result=await query(node);
+		console.log('result', result);
 		const productCatalogAddNode = getBinaryNodeChild(result, 'business_profile_edit')
 		const productNode = getBinaryNodeChild(productCatalogAddNode, 'business_profile')
 		return parseBusinessProfile(productNode!)
