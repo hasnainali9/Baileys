@@ -269,6 +269,95 @@ export const makeBusinessSocket = (config: SocketConfig) => {
 		}
 	}
 
+	const updateBusinessProfile = async (
+		jid: string,
+		profile: {
+			address?: string
+			description?: string
+			website?: string[]
+			email?: string
+			category?: string
+			business_hours?: {
+			timezone: string
+			business_config: {
+				day_of_week: string
+				mode: 'open_24h' | 'closed' | 'specific_hours' | 'appointment_only'
+				open_time?: string
+				close_time?: string
+			}[]
+			}
+		}
+		): Promise<void> => {
+		const content = []
+
+		if (profile.address)
+			content.push({ tag: 'address', attrs: {}, content: profile.address })
+
+		if (profile.description)
+			content.push({ tag: 'description', attrs: {}, content: profile.description })
+
+		if (profile.website) {
+			for (const url of profile.website) {
+			content.push({ tag: 'website', attrs: {}, content: url })
+			}
+		}
+
+		if (profile.email)
+			content.push({ tag: 'email', attrs: {}, content: profile.email })
+
+		if (profile.category)
+			content.push({ tag: 'category', attrs: {}, content: profile.category })
+
+		if (profile.business_hours) {
+			const bhConfig = profile.business_hours.business_config.map(cfg => {
+			const attrs: Record<string, string> = {
+				day_of_week: cfg.day_of_week,
+				mode: cfg.mode
+			}
+
+			if (cfg.mode === 'specific_hours') {
+				if (cfg.open_time) attrs.open_time = cfg.open_time
+				if (cfg.close_time) attrs.close_time = cfg.close_time
+			}
+
+			return { tag: 'config', attrs }
+			})
+
+			content.push({
+			tag: 'business_hours',
+			attrs: {
+				timezone: profile.business_hours.timezone
+			},
+			content: bhConfig
+			})
+		}
+
+		const node = {
+			tag: 'iq',
+			attrs: {
+			to: 's.whatsapp.net',
+			type: 'set',
+			xmlns: 'w:biz'
+			},
+			content: [
+			{
+				tag: 'business_profile',
+				attrs: { v: '244' },
+				content: [
+				{
+					tag: 'profile',
+					attrs: { jid },
+					content
+				}
+				]
+			}
+			]
+		}
+
+		await query(node);
+	}
+
+
 	return {
 		...sock,
 		logger: config.logger,
@@ -277,6 +366,7 @@ export const makeBusinessSocket = (config: SocketConfig) => {
 		getCollections,
 		productCreate,
 		productDelete,
-		productUpdate
+		productUpdate,
+		updateBusinessProfile
 	}
 }
