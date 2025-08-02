@@ -407,7 +407,7 @@ export const makeChatsSocket = (config: SocketConfig) => {
 			const description = getBinaryNodeChild(profiles, 'description')
 			const website = getBinaryNodeChild(profiles, 'website')
 			const email = getBinaryNodeChild(profiles, 'email')
-			const phone = getBinaryNodeChild(profiles, 'email')
+			const phone = getBinaryNodeChild(profiles, 'phone')
 			const category = getBinaryNodeChild(getBinaryNodeChild(profiles, 'categories'), 'category')
 			const businessHours = getBinaryNodeChild(profiles, 'business_hours')
 			const businessHoursConfig = businessHours
