@@ -281,16 +281,22 @@ export const makeBusinessSocket = (config: SocketConfig) => {
 		const node: BinaryNode = {
 			tag: 'iq',
 			attrs: {
-			to: 's.whatsapp.net',
-			type: 'set',
-			xmlns: 'w:biz'
+				to: 's.whatsapp.net',
+				type: 'set',
+				xmlns: 'w:biz'
 			},
 			content: [
 			{
 				tag: 'business_profile_edit',
 				attrs: { v: '244' },
 				content: [
-					content,
+					{
+						tag: 'profile',
+						attrs: {},
+						content: [
+							content
+						]
+					}
 				]
 			}
 			]

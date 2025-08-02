@@ -190,6 +190,7 @@ export const toBusinessProfile = (profile: BusinessProfile): BinaryNode => {
 	const content: BinaryNode[] = []
 	const attrs: BinaryNode['attrs'] = {}
 
+	
 	if (typeof profile.address !== 'undefined') {
 		content.push({
 			tag: 'address',
@@ -232,29 +233,29 @@ export const toBusinessProfile = (profile: BusinessProfile): BinaryNode => {
 		})
 	}
 
-	if (profile.business_hours) {
-		const bhConfig: BinaryNode[] = profile.business_hours.business_config.map(cfg => {
-			const attrs: Record<string, string> = {
-				day_of_week: cfg.day_of_week,
-				mode: cfg.mode
-			}
+	// if (profile.business_hours) {
+	// 	const bhConfig: BinaryNode[] = profile.business_hours.business_config.map(cfg => {
+	// 		const attrs: Record<string, string> = {
+	// 			day_of_week: cfg.day_of_week,
+	// 			mode: cfg.mode
+	// 		}
 
-			if (cfg.mode === 'specific_hours') {
-				if (cfg.open_time) attrs.open_time = cfg.open_time
-				if (cfg.close_time) attrs.close_time = cfg.close_time
-			}
+	// 		if (cfg.mode === 'specific_hours') {
+	// 			if (cfg.open_time) attrs.open_time = cfg.open_time
+	// 			if (cfg.close_time) attrs.close_time = cfg.close_time
+	// 		}
 
-			return { tag: 'config', attrs, content: undefined }
-		})
+	// 		return { tag: 'config', attrs, content: undefined }
+	// 	})
 
-		content.push({
-			tag: 'business_hours',
-			attrs: {
-				timezone: profile.business_hours.timezone
-			},
-			content: bhConfig
-		})
-	}
+	// 	content.push({
+	// 		tag: 'business_hours',
+	// 		attrs: {
+	// 			timezone: profile.business_hours.timezone
+	// 		},
+	// 		content: bhConfig
+	// 	})
+	// }
 
 	const node: BinaryNode = {
 		tag: 'product',
